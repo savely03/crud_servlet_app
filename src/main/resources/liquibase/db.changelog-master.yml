@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: liquibase/ddl/base-schema-changelog.xml
+  - include:
+      file: liquibase/dml/generate-data-base-schema-changelog.sql
