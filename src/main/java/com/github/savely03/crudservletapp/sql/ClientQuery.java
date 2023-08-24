@@ -33,4 +33,25 @@ public final class ClientQuery {
                 gender = ?
             WHERE id = ?
             """;
+
+    public static final String CNT_CARS_GROUP_BY_CLIENT = """
+            SELECT c.id,
+                   c.full_name,
+                   count(1)
+            FROM clients c
+            JOIN orders o ON c.id = o.client_id
+            GROUP BY c.id, c.full_name
+            ORDER BY c.id
+            """;
+
+    public static final String FULL_NAMES_CLIENTS_WITH_MAX_ORDERS_CNT = """
+            SELECT a.full_name as full_name
+            FROM (
+            SELECT c.full_name as full_name,
+                   dense_rank() OVER (ORDER BY count(1) DESC ) as rnk
+            FROM clients c
+            JOIN orders o ON c.id = o.client_id
+            GROUP BY c.id ) a
+            WHERE a.rnk = 1
+            """;
 }

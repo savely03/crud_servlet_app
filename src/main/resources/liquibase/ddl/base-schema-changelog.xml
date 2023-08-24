@@ -5,7 +5,19 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="1-base-sch" author="SavelyDomnikov">
+    <changeSet id="1-base-schema" author="SavelyDomnikov">
+
+        <preConditions onFail="WARN">
+            <not>
+                <tableExists tableName="cars"/>
+            </not>
+            <not>
+                <tableExists tableName="clients"/>
+            </not>
+            <not>
+                <tableExists tableName="orders"/>
+            </not>
+        </preConditions>
 
         <createTable tableName="cars">
             <column name="id" type="BIGINT" autoIncrement="true">
@@ -27,6 +39,9 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+        <rollback>
+            <dropTable tableName="cars"/>
+        </rollback>
 
         <createTable tableName="clients">
             <column name="id" type="BIGINT" autoIncrement="true">
@@ -47,6 +62,9 @@
             ALTER TABLE clients
                 ADD CONSTRAINT clients_check_gender CHECK ( gender &gt;= 1 AND gender &lt;= 2 )
         </sql>
+        <rollback>
+            <dropTable tableName="clients"/>
+        </rollback>
 
         <createTable tableName="orders">
             <column name="id" type="BIGINT" autoIncrement="true">
@@ -59,9 +77,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="order_date" type="DATE">
-                <constraints nullable="false"/>
             </column>
         </createTable>
+
+        <addDefaultValue tableName="orders" columnName="order_date" defaultValue="now()"/>
 
         <addForeignKeyConstraint baseTableName="orders"
                                  baseColumnNames="client_id"
@@ -80,6 +99,12 @@
             <column name="color">
             </column>
         </createIndex>
+        <rollback>
+            <dropTable tableName="orders"/>
+        </rollback>
+        <rollback>
+            <dropIndex tableName="cars" indexName="idx_car_color"/>
+        </rollback>
 
     </changeSet>
 </databaseChangeLog>

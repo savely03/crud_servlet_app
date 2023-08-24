@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.savely03.crudservletapp.dto.ClientDto;
 import com.github.savely03.crudservletapp.exception.ClientNotFoundException;
 import com.github.savely03.crudservletapp.exception.ClientValidationException;
-import com.github.savely03.crudservletapp.service.ClientService;
+import com.github.savely03.crudservletapp.service.impl.ClientServiceImpl;
 import com.github.savely03.crudservletapp.util.ObjectMapperConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,24 +21,30 @@ import java.util.Optional;
 
 @WebServlet("/client")
 public class ClientServlet extends HttpServlet {
-    private ClientService clientService;
+    private ClientServiceImpl clientService;
     private ObjectMapper objectMapper;
 
     @Override
     public void init() throws ServletException {
-        clientService = ClientService.getInstance();
+        clientService = ClientServiceImpl.getInstance();
         objectMapper = ObjectMapperConfig.getInstance();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try (PrintWriter writer = resp.getWriter()) {
+        PrintWriter writer = resp.getWriter();
+        try {
             String id = req.getParameter("id");
             if (Objects.isNull(id)) {
                 objectMapper.writeValue(writer, clientService.findAll());
             } else {
                 objectMapper.writeValue(writer, clientService.findById(Long.valueOf(id)));
             }
+        } catch (ClientValidationException e) {
+            resp.setStatus(e.getHttStatus());
+            writer.write(e.getMessage());
+        } finally {
+            writer.close();
         }
     }
 

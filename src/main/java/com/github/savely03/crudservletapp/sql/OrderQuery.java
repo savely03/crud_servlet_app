@@ -33,4 +33,14 @@ public final class OrderQuery {
                 order_date = ?
             WHERE id = ?
             """;
+
+    public static final String MONTHS_WITH_MAX_CARS_COUNT = """
+            SELECT a.month as month
+            FROM (
+            SELECT extract(MONTH FROM order_date) as month,
+                   dense_rank() OVER(ORDER BY count(1) DESC ) as rnk
+            FROM orders
+            GROUP BY month) a
+            WHERE a.rnk = 1
+            """;
 }
