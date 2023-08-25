@@ -35,13 +35,12 @@ public final class ClientQuery {
             """;
 
     public static final String CNT_CARS_GROUP_BY_CLIENT = """
-            SELECT c.id,
-                   c.full_name,
-                   count(1)
+            SELECT c.id as id,
+                   c.full_name as full_name,
+                   count(1) as cnt
             FROM clients c
             JOIN orders o ON c.id = o.client_id
             GROUP BY c.id, c.full_name
-            ORDER BY c.id
             """;
 
     public static final String FULL_NAMES_CLIENTS_WITH_MAX_ORDERS_CNT = """

@@ -113,6 +113,23 @@ public class CarRepository implements CrudRepository<Car, Long> {
     }
 
     @SneakyThrows
+    public Integer getCountCars(String color) {
+        try (Connection connection = hikariConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(CNT_CARS_BY_COLOR)) {
+
+            preparedStatement.setString(1, color);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int countCars = 0;
+
+            while (resultSet.next()) {
+                countCars = resultSet.getInt("count_cars");
+            }
+
+            return countCars;
+        }
+    }
+
+    @SneakyThrows
     private Car buildCar(ResultSet resultSet) {
         return Car.builder()
                 .id(resultSet.getLong("id"))

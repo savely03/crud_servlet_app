@@ -1,6 +1,7 @@
 package com.github.savely03.crudservletapp.service.impl;
 
 import com.github.savely03.crudservletapp.dto.ClientDto;
+import com.github.savely03.crudservletapp.dto.ClientWithCntCarsDto;
 import com.github.savely03.crudservletapp.exception.ClientNotFoundException;
 import com.github.savely03.crudservletapp.mapper.ClientMapper;
 import com.github.savely03.crudservletapp.repository.ClientRepository;
@@ -62,5 +63,15 @@ public class ClientServiceImpl implements ClientService {
         if (!clientRepository.deleteById(id)) {
             throw new ClientNotFoundException(id);
         }
+    }
+
+    @Override
+    public List<ClientWithCntCarsDto> getCountOrderedCarsByClient() {
+        return clientRepository.getCountOrderedCarsByClient();
+    }
+
+    @Override
+    public List<String> getFullNameWithMostOrderedCars() {
+        return clientRepository.getFullNameWithMostOrderedCars();
     }
 }

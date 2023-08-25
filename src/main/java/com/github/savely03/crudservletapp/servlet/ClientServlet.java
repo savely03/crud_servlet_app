@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.savely03.crudservletapp.dto.ClientDto;
 import com.github.savely03.crudservletapp.exception.ClientNotFoundException;
 import com.github.savely03.crudservletapp.exception.ClientValidationException;
+import com.github.savely03.crudservletapp.service.ClientService;
 import com.github.savely03.crudservletapp.service.impl.ClientServiceImpl;
 import com.github.savely03.crudservletapp.util.ObjectMapperConfig;
 import jakarta.servlet.ServletException;
@@ -19,9 +20,9 @@ import java.io.PrintWriter;
 import java.util.Objects;
 import java.util.Optional;
 
-@WebServlet("/client")
+@WebServlet("/api/v1/client")
 public class ClientServlet extends HttpServlet {
-    private ClientServiceImpl clientService;
+    private ClientService clientService;
     private ObjectMapper objectMapper;
 
     @Override
@@ -32,6 +33,7 @@ public class ClientServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println(req.getServletPath());
         PrintWriter writer = resp.getWriter();
         try {
             String id = req.getParameter("id");
@@ -40,8 +42,8 @@ public class ClientServlet extends HttpServlet {
             } else {
                 objectMapper.writeValue(writer, clientService.findById(Long.valueOf(id)));
             }
-        } catch (ClientValidationException e) {
-            resp.setStatus(e.getHttStatus());
+        } catch (ClientValidationException | ClientNotFoundException e) {
+            resp.setStatus(e.getResponse().getStatus());
             writer.write(e.getMessage());
         } finally {
             writer.close();
@@ -57,7 +59,7 @@ public class ClientServlet extends HttpServlet {
             objectMapper.writeValue(writer, clientService.save(clientDto));
             resp.setStatus(HttpServletResponse.SC_CREATED);
         } catch (ClientValidationException e) {
-            resp.setStatus(e.getHttStatus());
+            resp.setStatus(e.getResponse().getStatus());
             writer.write(e.getMessage());
         } catch (JsonProcessingException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -77,7 +79,7 @@ public class ClientServlet extends HttpServlet {
             ClientDto clientDto = objectMapper.readValue(reader, ClientDto.class);
             objectMapper.writeValue(writer, clientService.update(Long.valueOf(id), clientDto));
         } catch (ClientValidationException | ClientNotFoundException e) {
-            resp.setStatus(e.getHttStatus());
+            resp.setStatus(e.getResponse().getStatus());
             writer.write(e.getMessage());
         } catch (JsonProcessingException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -96,7 +98,7 @@ public class ClientServlet extends HttpServlet {
             clientService.deleteById(Long.valueOf(id));
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
         } catch (ClientNotFoundException e) {
-            resp.setStatus(e.getHttStatus());
+            resp.setStatus(e.getResponse().getStatus());
             writer.write(e.getMessage());
         } finally {
             writer.close();

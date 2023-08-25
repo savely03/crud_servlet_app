@@ -110,6 +110,22 @@ public class OrderRepository implements CrudRepository<Order, Long> {
     }
 
     @SneakyThrows
+    public List<Integer> findMonthsWithMostOrdersCars() {
+        try (Connection connection = hikariConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(MONTHS_WITH_MOST_CARS_COUNT)) {
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<Integer> months = new ArrayList<>();
+
+            while (resultSet.next()) {
+                months.add(resultSet.getInt("month"));
+            }
+
+            return months;
+        }
+    }
+
+    @SneakyThrows
     private Order buildOrder(ResultSet resultSet) {
         return Order.builder()
                 .id(resultSet.getLong("id"))

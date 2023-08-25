@@ -1,14 +1,10 @@
 package com.github.savely03.crudservletapp.exception;
 
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 
-public class ClientValidationException extends BaseException {
+public class ClientValidationException extends WebApplicationException {
     public ClientValidationException() {
-        super(HttpServletResponse.SC_BAD_REQUEST);
-    }
-
-    @Override
-    public String getMessage() {
-        return "Ошибка валидации клиента (проверьте id и поля)";
+        super("Ошибка валидации клиента (проверьте id и поля)", Response.Status.BAD_REQUEST);
     }
 }

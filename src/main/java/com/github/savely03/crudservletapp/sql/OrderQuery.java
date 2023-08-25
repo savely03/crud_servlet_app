@@ -34,7 +34,7 @@ public final class OrderQuery {
             WHERE id = ?
             """;
 
-    public static final String MONTHS_WITH_MAX_CARS_COUNT = """
+    public static final String MONTHS_WITH_MOST_CARS_COUNT = """
             SELECT a.month as month
             FROM (
             SELECT extract(MONTH FROM order_date) as month,

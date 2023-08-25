@@ -1,16 +1,10 @@
 package com.github.savely03.crudservletapp.exception;
 
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 
-public class CarNotFoundException extends BaseException {
-    private final Long id;
+public class CarNotFoundException extends WebApplicationException {
     public CarNotFoundException(Long id) {
-        super(HttpServletResponse.SC_NOT_FOUND);
-        this.id = id;
-    }
-
-    @Override
-    public String getMessage() {
-        return String.format("Машина с id - %d не найдена", id);
+        super(String.format("Машина с id - %d не найдена", id), Response.Status.NOT_FOUND);
     }
 }

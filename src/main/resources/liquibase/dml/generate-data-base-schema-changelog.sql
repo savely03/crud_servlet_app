@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset SavelyDomnikov:1-insert-base-sch
+-- changeset SavelyDomnikov:1-insert-base-schema
 
 INSERT INTO clients (full_name, date_birthday, gender)
 VALUES ('Sean Andrews', '1983-12-09', 1),

@@ -1,14 +1,14 @@
 package com.github.savely03.crudservletapp.repository;
 
+import com.github.savely03.crudservletapp.dto.ClientWithCntCarsDto;
 import com.github.savely03.crudservletapp.model.Client;
 import com.github.savely03.crudservletapp.util.ConnectionManager;
 import com.github.savely03.crudservletapp.util.HikariConnectionManager;
 import lombok.SneakyThrows;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.sql.Date;
+import java.util.*;
 
 import static com.github.savely03.crudservletapp.sql.ClientQuery.*;
 
@@ -105,6 +105,42 @@ public class ClientRepository implements CrudRepository<Client, Long> {
             preparedStatement.setLong(1, id);
 
             return preparedStatement.executeUpdate() > 0;
+        }
+    }
+
+    @SneakyThrows
+    public List<ClientWithCntCarsDto> getCountOrderedCarsByClient() {
+        try (Connection connection = hikariConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(CNT_CARS_GROUP_BY_CLIENT)) {
+
+            List<ClientWithCntCarsDto> clients = new ArrayList<>();
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                clients.add(ClientWithCntCarsDto.builder()
+                        .id(resultSet.getLong("id"))
+                        .fullName(resultSet.getString("full_name"))
+                        .countCars(resultSet.getInt("cnt"))
+                        .build());
+            }
+
+            return clients;
+        }
+    }
+
+    @SneakyThrows
+    public List<String> getFullNameWithMostOrderedCars() {
+        try (Connection connection = hikariConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(FULL_NAMES_CLIENTS_WITH_MAX_ORDERS_CNT)) {
+
+            List<String> fullNames = new ArrayList<>();
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                fullNames.add(resultSet.getString("full_name"));
+            }
+
+            return fullNames;
         }
     }
 

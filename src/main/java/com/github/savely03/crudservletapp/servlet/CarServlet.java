@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.savely03.crudservletapp.dto.CarDto;
 import com.github.savely03.crudservletapp.exception.CarNotFoundException;
 import com.github.savely03.crudservletapp.exception.CarValidationException;
-import com.github.savely03.crudservletapp.exception.ClientValidationException;
+import com.github.savely03.crudservletapp.service.CarService;
 import com.github.savely03.crudservletapp.service.impl.CarServiceImpl;
 import com.github.savely03.crudservletapp.util.ObjectMapperConfig;
 import jakarta.servlet.ServletException;
@@ -20,10 +20,9 @@ import java.io.PrintWriter;
 import java.util.Objects;
 import java.util.Optional;
 
-@WebServlet("/car")
+@WebServlet("/api/v1/car")
 public class CarServlet extends HttpServlet {
-
-    private CarServiceImpl carService;
+    private CarService carService;
     private ObjectMapper objectMapper;
 
     @Override
@@ -36,14 +35,15 @@ public class CarServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PrintWriter writer = resp.getWriter();
         try {
+            writer = resp.getWriter();
             String id = req.getParameter("id");
             if (Objects.isNull(id)) {
                 objectMapper.writeValue(writer, carService.findAll());
             } else {
                 objectMapper.writeValue(writer, carService.findById(Long.valueOf(id)));
             }
-        } catch (CarValidationException e) {
-            resp.setStatus(e.getHttStatus());
+        } catch (CarValidationException | CarNotFoundException e) {
+            resp.setStatus(e.getResponse().getStatus());
             writer.write(e.getMessage());
         } finally {
             writer.close();
@@ -59,7 +59,7 @@ public class CarServlet extends HttpServlet {
             objectMapper.writeValue(writer, carService.save(carDto));
             resp.setStatus(HttpServletResponse.SC_CREATED);
         } catch (CarValidationException e) {
-            resp.setStatus(e.getHttStatus());
+            resp.setStatus(e.getResponse().getStatus());
             writer.write(e.getMessage());
         } catch (JsonProcessingException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -75,11 +75,11 @@ public class CarServlet extends HttpServlet {
         BufferedReader reader = req.getReader();
         PrintWriter writer = resp.getWriter();
         try {
-            String id = Optional.ofNullable(req.getParameter("id")).orElseThrow(ClientValidationException::new);
+            String id = Optional.ofNullable(req.getParameter("id")).orElseThrow(CarValidationException::new);
             CarDto carDto = objectMapper.readValue(reader, CarDto.class);
             objectMapper.writeValue(writer, carService.update(Long.valueOf(id), carDto));
         } catch (CarValidationException | CarNotFoundException e) {
-            resp.setStatus(e.getHttStatus());
+            resp.setStatus(e.getResponse().getStatus());
             writer.write(e.getMessage());
         } catch (JsonProcessingException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -94,11 +94,11 @@ public class CarServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PrintWriter writer = resp.getWriter();
         try {
-            String id = Optional.ofNullable(req.getParameter("id")).orElseThrow(ClientValidationException::new);
+            String id = Optional.ofNullable(req.getParameter("id")).orElseThrow(CarValidationException::new);
             carService.deleteById(Long.valueOf(id));
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
         } catch (CarNotFoundException e) {
-            resp.setStatus(e.getHttStatus());
+            resp.setStatus(e.getResponse().getStatus());
             writer.write(e.getMessage());
         } finally {
             writer.close();
