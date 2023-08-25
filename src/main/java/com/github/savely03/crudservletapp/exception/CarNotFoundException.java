@@ -5,6 +5,6 @@ import jakarta.ws.rs.core.Response;
 
 public class CarNotFoundException extends WebApplicationException {
     public CarNotFoundException(Long id) {
-        super(String.format("Машина с id - %d не найдена", id), Response.Status.NOT_FOUND);
+        super(String.format("Автомобиль с id - %d не найден", id), Response.Status.NOT_FOUND);
     }
 }

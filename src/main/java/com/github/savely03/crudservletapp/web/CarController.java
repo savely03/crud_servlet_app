@@ -23,6 +23,9 @@ public class CarController {
     @Produces(MediaType.APPLICATION_JSON)
     @SneakyThrows
     public Response getCountCars(@QueryParam("color") String color) {
+        if (color == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Укажите параметр color").build();
+        }
         return Response.ok(
                 objectMapper.writeValueAsString(carService.getCountCars(color))
         ).build();

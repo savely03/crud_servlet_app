@@ -13,7 +13,6 @@ import java.util.Objects;
 @Builder
 @ToString
 public class Order {
-
     private Long id;
     private Long clientId;
     private Long carId;

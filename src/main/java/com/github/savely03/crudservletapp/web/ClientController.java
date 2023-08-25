@@ -28,7 +28,7 @@ public class ClientController {
     }
 
     @GET
-    @Path("/fullName/max-cars-ordered")
+    @Path("/fullName/most-cars-ordered")
     @Produces(MediaType.APPLICATION_JSON)
     @SneakyThrows
     public Response getFullNameWithMostOrderedCars() {
