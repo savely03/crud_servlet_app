@@ -26,7 +26,7 @@ public class ClientDtoValidator extends Validator<ClientDto> {
 
     @Override
     public void validateId(Long id) {
-        if (id <= 0) {
+        if (id == null || id <= 0) {
             throw new ClientValidationException();
         }
     }

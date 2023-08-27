@@ -7,8 +7,7 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
 
-public final class HikariConnectionManager implements ConnectionManager {
-    private static final ConnectionManager INSTANCE = new HikariConnectionManager();
+public final class HikariConnectionManager {
     private static DataSource dataSource;
 
     static {
@@ -18,13 +17,8 @@ public final class HikariConnectionManager implements ConnectionManager {
     private HikariConnectionManager() {
     }
 
-    public static ConnectionManager getInstance() {
-        return INSTANCE;
-    }
-
     @SneakyThrows
-    @Override
-    public Connection getConnection() {
+    public static Connection getConnection() {
         return dataSource.getConnection();
     }
 

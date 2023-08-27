@@ -26,7 +26,7 @@ public class CarDtoValidator extends Validator<CarDto> {
 
     @Override
     public void validateId(Long id) {
-        if (id <= 0) {
+        if (id == null || id <= 0) {
             throw new CarValidationException();
         }
     }

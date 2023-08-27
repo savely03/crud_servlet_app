@@ -14,7 +14,6 @@ import lombok.SneakyThrows;
 
 @Path("/car")
 public class CarController {
-
     private final CarService carService = CarServiceImpl.getInstance();
     private final ObjectMapper objectMapper = ObjectMapperConfig.getInstance();
 
@@ -24,7 +23,7 @@ public class CarController {
     @SneakyThrows
     public Response getCountCars(@QueryParam("color") String color) {
         if (color == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Укажите параметр color").build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("Укажите параметр - color").build();
         }
         return Response.ok(
                 objectMapper.writeValueAsString(carService.getCountCars(color))

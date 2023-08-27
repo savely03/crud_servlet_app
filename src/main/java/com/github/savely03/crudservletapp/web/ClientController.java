@@ -13,7 +13,6 @@ import lombok.SneakyThrows;
 
 @Path("/client")
 public class ClientController {
-
     private final ClientService clientService = ClientServiceImpl.getInstance();
     private final ObjectMapper objectMapper = ObjectMapperConfig.getInstance();
 
