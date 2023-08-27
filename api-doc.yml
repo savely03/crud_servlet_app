@@ -1,0 +1,445 @@
+openapi: 3.0.3
+info:
+  title: Car Store
+  version: 0.0.1
+servers:
+  - url: http://localhost:8080/api/v1
+paths:
+  /client:
+    get:
+      summary: Get clients
+      tags:
+        - Client
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClientDto'
+        'default':
+          description: Unexpected errors
+    post:
+      summary: Create client
+      tags:
+        - Client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientDto'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientDto'
+        "400":
+          description: Bad request - problems with validation
+    delete:
+      summary: Delete client by id
+      tags:
+        - Client
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientDto'
+        '404':
+          description: Not Found
+    put:
+      summary: Update client
+      tags:
+        - Client
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientDto'
+        '400':
+          description: Bad request - problems with validation
+        '404':
+          description: Not Found
+  /client{id}:
+    get:
+      summary: Get client by id
+      tags:
+        - Client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientDto'
+        '404':
+          description: Not Found
+  /client/count-cars-ordered:
+    get:
+      summary: Get count cars group by client
+      tags:
+        - Client
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientWithCntCarsDto'
+        'default':
+          description: Unexpected errors
+  /client/fullName/most-cars-ordered:
+    get:
+      summary: Get fullNames with most ordered cars
+      tags:
+        - Client
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: string
+        'default':
+          description: Unexpected errors
+
+
+  /order:
+    get:
+      summary: Get orders
+      tags:
+        - Order
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDto'
+        'default':
+          description: Unexpected errors
+    post:
+      summary: Create order
+      tags:
+        - Order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderDto'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+        "400":
+          description: Bad request - problems with validation
+    delete:
+      summary: Delete order by id
+      tags:
+        - Order
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+        '404':
+          description: Not Found
+    put:
+      summary: Update order
+      tags:
+        - Order
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+        '400':
+          description: Bad request - problems with validation
+        '404':
+          description: Not Found
+  /order{id}:
+    get:
+      summary: Get order by id
+      tags:
+        - Order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+        '404':
+          description: Not Found
+  /order/month/most-cars-ordered:
+    get:
+      summary: Get months with most ordered cars
+      tags:
+        - Order
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: integer
+        'default':
+          description: Unexpected errors
+
+
+  /car:
+    get:
+      summary: Get cars
+      tags:
+        - Car
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarDto'
+
+        'default':
+          description: Unexpected errors
+    post:
+      summary: Create car
+      tags:
+        - Car
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarDto'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarDto'
+        "400":
+          description: Bad request - problems with validation
+    delete:
+      summary: Delete car by id
+      tags:
+        - Car
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarDto'
+        '404':
+          description: Not Found
+    put:
+      summary: Update car
+      tags:
+        - Car
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarDto'
+        '400':
+          description: Bad request - problems with validation
+        '404':
+          description: Not Found
+  /car{id}:
+    get:
+      summary: Get car by id
+      tags:
+        - Car
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarDto'
+        '404':
+          description: Not Found
+  /car/count-ordered:
+    get:
+      summary: Get count cars by color
+      tags:
+        - Car
+      parameters:
+        - name: color
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: integer
+        '404':
+          description: Not Found
+
+
+components:
+  schemas:
+    ClientDto:
+      type: object
+      required:
+        - fullName
+        - dateBirthday
+        - gender
+      properties:
+        id:
+          type: integer
+          format: int64
+        fullName:
+          type: string
+        dateBirthday:
+          type: string
+          format: 01.01.2023
+        gender:
+          type: integer
+          format: int32
+    OrderDto:
+      type: object
+      required:
+        - clientId
+        - carId
+        - orderDate
+      properties:
+        id:
+          type: integer
+          format: int64
+        clientId:
+          type: integer
+          format: int64
+        carId:
+          type: integer
+          format: int64
+        orderDate:
+          type: string
+          format: 01.01.2023
+    CarDto:
+      type: object
+      required:
+        - model
+        - color
+        - engineCapacity
+        - releaseDate
+        - price
+      properties:
+        id:
+          type: integer
+          format: int64
+        model:
+          type: string
+        color:
+          type: string
+        engineCapacity:
+          type: number
+        releaseDate:
+          type: string
+          format: 01.01.2023
+        price:
+          type: number
+    ClientWithCntCarsDto:
+      type: object
+      required:
+        - fullName
+        - countCars
+      properties:
+        id:
+          type: integer
+          format: int64
+        fullName:
+          type: string
+        countCars:
+          type: integer

@@ -17,7 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Objects;
 import java.util.Optional;
 
 @WebServlet("/api/v1/car")
@@ -35,14 +34,8 @@ public class CarServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PrintWriter writer = resp.getWriter();
         try {
-            writer = resp.getWriter();
-            String id = req.getParameter("id");
-            if (Objects.isNull(id)) {
-                objectMapper.writeValue(writer, carService.findAll());
-            } else {
-                objectMapper.writeValue(writer, carService.findById(Long.valueOf(id)));
-            }
-        } catch (CarValidationException | CarNotFoundException e) {
+            objectMapper.writeValue(writer, carService.findAll());
+        } catch (CarNotFoundException e) {
             resp.setStatus(e.getResponse().getStatus());
             writer.write(e.getMessage());
         } finally {

@@ -17,7 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Objects;
 import java.util.Optional;
 
 @WebServlet("/api/v1/client")
@@ -33,16 +32,10 @@ public class ClientServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println(req.getServletPath());
         PrintWriter writer = resp.getWriter();
         try {
-            String id = req.getParameter("id");
-            if (Objects.isNull(id)) {
-                objectMapper.writeValue(writer, clientService.findAll());
-            } else {
-                objectMapper.writeValue(writer, clientService.findById(Long.valueOf(id)));
-            }
-        } catch (ClientValidationException | ClientNotFoundException e) {
+            objectMapper.writeValue(writer, clientService.findAll());
+        } catch (ClientNotFoundException e) {
             resp.setStatus(e.getResponse().getStatus());
             writer.write(e.getMessage());
         } finally {

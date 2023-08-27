@@ -17,7 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Objects;
 import java.util.Optional;
 
 @WebServlet("/api/v1/order")
@@ -35,13 +34,8 @@ public class OrderServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PrintWriter writer = resp.getWriter();
         try {
-            String id = req.getParameter("id");
-            if (Objects.isNull(id)) {
-                objectMapper.writeValue(writer, orderService.findAll());
-            } else {
-                objectMapper.writeValue(writer, orderService.findById(Long.valueOf(id)));
-            }
-        } catch (OrderValidationException | OrderNotFoundException e) {
+            objectMapper.writeValue(writer, orderService.findAll());
+        } catch (OrderNotFoundException e) {
             resp.setStatus(e.getResponse().getStatus());
             writer.write(e.getMessage());
         } finally {
