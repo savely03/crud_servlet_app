@@ -5,17 +5,11 @@ import com.github.savely03.crudservletapp.service.impl.CarServiceImpl;
 import com.github.savely03.crudservletapp.validation.CarDtoValidator;
 import jakarta.servlet.annotation.WebServlet;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import static com.github.savely03.crudservletapp.mapper.JsonMapper.OBJECT_MAPPER;
 
 @WebServlet("/api/v1/car")
 public class CarServlet extends BaseServlet<CarDto> {
     public CarServlet() {
-        super(CarServiceImpl.getInstance(), CarDtoValidator.getInstance());
-    }
-
-    @Override
-    public CarDto readObject(BufferedReader reader) throws IOException {
-        return objectMapper.readValue(reader, CarDto.class);
+        super(CarServiceImpl.getInstance(), CarDtoValidator.getInstance(), s -> OBJECT_MAPPER.readValue(s, CarDto.class));
     }
 }

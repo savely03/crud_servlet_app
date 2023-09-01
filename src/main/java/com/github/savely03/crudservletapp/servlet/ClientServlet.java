@@ -5,17 +5,12 @@ import com.github.savely03.crudservletapp.service.impl.ClientServiceImpl;
 import com.github.savely03.crudservletapp.validation.ClientDtoValidator;
 import jakarta.servlet.annotation.WebServlet;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import static com.github.savely03.crudservletapp.mapper.JsonMapper.OBJECT_MAPPER;
 
 @WebServlet("/api/v1/client")
 public class ClientServlet extends BaseServlet<ClientDto> {
     public ClientServlet() {
-        super(ClientServiceImpl.getInstance(), ClientDtoValidator.getInstance());
+        super(ClientServiceImpl.getInstance(), ClientDtoValidator.getInstance(), s -> OBJECT_MAPPER.readValue(s, ClientDto.class));
     }
 
-    @Override
-    public ClientDto readObject(BufferedReader reader) throws IOException {
-        return objectMapper.readValue(reader, ClientDto.class);
-    }
 }

@@ -3,8 +3,6 @@ package com.github.savely03.crudservletapp.validation;
 import com.github.savely03.crudservletapp.exception.ValidationException;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Objects;
-
 public abstract class Validator<T> {
     public void validate(String id, T obj) {
         validateId(id);
@@ -14,7 +12,7 @@ public abstract class Validator<T> {
     public abstract void validate(T obj);
 
     public void validateId(Long id) {
-        if (Objects.isNull(id) || id < 0) {
+        if (id < 0) {
             throw new ValidationException();
         }
     }
