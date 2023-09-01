@@ -2,14 +2,17 @@ package com.github.savely03.crudservletapp.service;
 
 import java.util.List;
 
-public interface CrudService<E, I> {
+// Идентификатор у всех реализаций - Long
+public interface CrudService<E> {
     List<E> findAll();
 
-    E findById(I id);
+    E findById(Long id);
 
     E save(E obj);
 
-    E update(I id, E obj);
+    E update(Long id, E obj);
 
-    void deleteById(I id);
+    void deleteById(Long id);
+
+    boolean exists(Long id);
 }

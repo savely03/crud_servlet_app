@@ -26,7 +26,9 @@ public class OrderController {
         try {
             return Response.ok(objectMapper.writeValueAsString(orderService.findById(id))).build();
         } catch (OrderNotFoundException e) {
-            return Response.status(e.getResponse().getStatus()).entity(e.getMessage()).build();
+            return Response.status(e.getResponse().getStatus()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -35,8 +37,12 @@ public class OrderController {
     @Produces(MediaType.APPLICATION_JSON)
     @SneakyThrows
     public Response findMonthsWithMostOrderedCars() {
-        return Response.ok(
-                objectMapper.writeValueAsString(orderService.findMonthsWithMostOrdersCars())
-        ).build();
+        try {
+            return Response.ok(
+                    objectMapper.writeValueAsString(orderService.findMonthsWithMostOrdersCars())
+            ).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

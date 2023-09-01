@@ -5,7 +5,6 @@ import com.github.savely03.crudservletapp.exception.OrderNotFoundException;
 import com.github.savely03.crudservletapp.mapper.OrderMapper;
 import com.github.savely03.crudservletapp.repository.OrderRepository;
 import com.github.savely03.crudservletapp.service.OrderService;
-import com.github.savely03.crudservletapp.validation.OrderDtoValidator;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -14,7 +13,6 @@ public class OrderServiceImpl implements OrderService {
     private static final OrderServiceImpl INSTANCE = new OrderServiceImpl();
     private final OrderRepository orderRepository = OrderRepository.getInstance();
     private final OrderMapper orderMapper = Mappers.getMapper(OrderMapper.class);
-    private final OrderDtoValidator validator = OrderDtoValidator.getInstance();
 
     private OrderServiceImpl() {
     }
@@ -32,7 +30,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto findById(Long id) {
-        validator.validateId(id);
         return orderRepository.findById(id)
                 .map(orderMapper::toDto)
                 .orElseThrow(() -> new OrderNotFoundException(id));
@@ -40,13 +37,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto save(OrderDto orderDto) {
-        validator.validate(orderDto);
         return orderMapper.toDto(orderRepository.save(orderMapper.toEntity(orderDto)));
     }
 
     @Override
     public OrderDto update(Long id, OrderDto orderDto) {
-        validator.validate(id, orderDto);
         orderRepository.findById(id).orElseThrow(
                 () -> new OrderNotFoundException(id)
         );
@@ -57,10 +52,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void deleteById(Long id) {
-        validator.validateId(id);
         if (!orderRepository.deleteById(id)) {
             throw new OrderNotFoundException(id);
         }
+    }
+
+    @Override
+    public boolean exists(Long id) {
+        return orderRepository.exists(id);
     }
 
 

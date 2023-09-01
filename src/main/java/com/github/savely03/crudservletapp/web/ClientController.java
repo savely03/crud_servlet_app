@@ -26,7 +26,7 @@ public class ClientController {
         try {
             return Response.ok(objectMapper.writeValueAsString(clientService.findById(id))).build();
         } catch (ClientNotFoundException e) {
-            return Response.status(e.getResponse().getStatus()).entity(e.getMessage()).build();
+            return Response.status(e.getResponse().getStatus()).build();
         }
     }
 
@@ -35,9 +35,13 @@ public class ClientController {
     @Produces(MediaType.APPLICATION_JSON)
     @SneakyThrows
     public Response getCountOrderedCarsByClient() {
-        return Response.ok(
-                objectMapper.writeValueAsString(clientService.getCountOrderedCarsByClient())
-        ).build();
+        try {
+            return Response.ok(
+                    objectMapper.writeValueAsString(clientService.getCountOrderedCarsByClient())
+            ).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GET
@@ -45,8 +49,12 @@ public class ClientController {
     @Produces(MediaType.APPLICATION_JSON)
     @SneakyThrows
     public Response getFullNameWithMostOrderedCars() {
-        return Response.ok(
-                objectMapper.writeValueAsString(clientService.getFullNameWithMostOrderedCars())
-        ).build();
+        try {
+            return Response.ok(
+                    objectMapper.writeValueAsString(clientService.getFullNameWithMostOrderedCars())
+            ).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

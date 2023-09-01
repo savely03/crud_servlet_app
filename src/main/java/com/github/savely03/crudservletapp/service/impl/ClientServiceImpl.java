@@ -6,8 +6,6 @@ import com.github.savely03.crudservletapp.exception.ClientNotFoundException;
 import com.github.savely03.crudservletapp.mapper.ClientMapper;
 import com.github.savely03.crudservletapp.repository.ClientRepository;
 import com.github.savely03.crudservletapp.service.ClientService;
-import com.github.savely03.crudservletapp.validation.ClientDtoValidator;
-import com.github.savely03.crudservletapp.validation.Validator;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -16,7 +14,6 @@ public class ClientServiceImpl implements ClientService {
     private static final ClientServiceImpl INSTANCE = new ClientServiceImpl();
     private final ClientRepository clientRepository = ClientRepository.getInstance();
     private final ClientMapper clientMapper = Mappers.getMapper(ClientMapper.class);
-    private final Validator<ClientDto> validator = ClientDtoValidator.getInstance();
 
     private ClientServiceImpl() {
     }
@@ -34,7 +31,6 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientDto findById(Long id) {
-        validator.validateId(id);
         return clientRepository.findById(id)
                 .map(clientMapper::toDto)
                 .orElseThrow(() -> new ClientNotFoundException(id));
@@ -42,13 +38,11 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientDto save(ClientDto clientDto) {
-        validator.validate(clientDto);
         return clientMapper.toDto(clientRepository.save(clientMapper.toEntity(clientDto)));
     }
 
     @Override
     public ClientDto update(Long id, ClientDto clientDto) {
-        validator.validate(id, clientDto);
         clientRepository.findById(id).orElseThrow(
                 () -> new ClientNotFoundException(id)
         );
@@ -59,10 +53,14 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void deleteById(Long id) {
-        validator.validateId(id);
         if (!clientRepository.deleteById(id)) {
             throw new ClientNotFoundException(id);
         }
+    }
+
+    @Override
+    public boolean exists(Long id) {
+        return clientRepository.exists(id);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.github.savely03.crudservletapp.repository;
 
 import com.github.savely03.crudservletapp.model.Order;
-import com.github.savely03.crudservletapp.util.HikariConnectionManager;
+import com.github.savely03.crudservletapp.util.ConnectionPool;
 import lombok.SneakyThrows;
 
 import java.sql.*;
@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import static com.github.savely03.crudservletapp.sql.OrderQuery.*;
 
-public class OrderRepository implements CrudRepository<Order, Long> {
+public class OrderRepository implements CrudRepository<Order> {
 
     public static final OrderRepository INSTANCE = new OrderRepository();
 
@@ -25,7 +25,7 @@ public class OrderRepository implements CrudRepository<Order, Long> {
     @SneakyThrows
     @Override
     public List<Order> findAll() {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL)) {
 
             List<Order> orders = new ArrayList<>();
@@ -43,7 +43,7 @@ public class OrderRepository implements CrudRepository<Order, Long> {
     @SneakyThrows
     @Override
     public Optional<Order> findById(Long id) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID)) {
 
             preparedStatement.setLong(1, id);
@@ -62,7 +62,7 @@ public class OrderRepository implements CrudRepository<Order, Long> {
     @SneakyThrows
     @Override
     public Order save(Order order) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setLong(1, order.getClientId());
@@ -82,7 +82,7 @@ public class OrderRepository implements CrudRepository<Order, Long> {
     @SneakyThrows
     @Override
     public Order update(Order order) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
 
             preparedStatement.setLong(1, order.getClientId());
@@ -98,7 +98,7 @@ public class OrderRepository implements CrudRepository<Order, Long> {
     @SneakyThrows
     @Override
     public boolean deleteById(Long id) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(DELETE_BY_ID)) {
 
             preparedStatement.setLong(1, id);
@@ -108,8 +108,26 @@ public class OrderRepository implements CrudRepository<Order, Long> {
     }
 
     @SneakyThrows
+    @Override
+    public boolean exists(Long id) {
+        try (Connection connection = ConnectionPool.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(EXISTS)) {
+
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            long count = 0;
+
+            if (resultSet.next()) {
+                count = resultSet.getLong("cnt_order");
+            }
+
+            return count > 0;
+        }
+    }
+
+    @SneakyThrows
     public List<Integer> findMonthsWithMostOrdersCars() {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(MONTHS_WITH_MOST_CARS_COUNT)) {
 
             ResultSet resultSet = preparedStatement.executeQuery();

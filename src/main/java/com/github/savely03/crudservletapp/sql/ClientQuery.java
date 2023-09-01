@@ -53,4 +53,10 @@ public final class ClientQuery {
             GROUP BY c.id ) a
             WHERE a.rnk = 1
             """;
+
+    public static final String EXISTS = """
+            SELECT count(1) as cnt_client
+            FROM clients
+            WHERE id = ?
+            """;
 }

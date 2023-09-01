@@ -2,7 +2,7 @@ package com.github.savely03.crudservletapp.repository;
 
 import com.github.savely03.crudservletapp.dto.ClientWithCntCarsDto;
 import com.github.savely03.crudservletapp.model.Client;
-import com.github.savely03.crudservletapp.util.HikariConnectionManager;
+import com.github.savely03.crudservletapp.util.ConnectionPool;
 import lombok.SneakyThrows;
 
 import java.sql.*;
@@ -11,7 +11,7 @@ import java.util.*;
 
 import static com.github.savely03.crudservletapp.sql.ClientQuery.*;
 
-public class ClientRepository implements CrudRepository<Client, Long> {
+public class ClientRepository implements CrudRepository<Client> {
 
     private static final ClientRepository INSTANCE = new ClientRepository();
 
@@ -25,7 +25,7 @@ public class ClientRepository implements CrudRepository<Client, Long> {
     @SneakyThrows
     @Override
     public List<Client> findAll() {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL)) {
 
             List<Client> clients = new ArrayList<>();
@@ -42,7 +42,7 @@ public class ClientRepository implements CrudRepository<Client, Long> {
     @SneakyThrows
     @Override
     public Optional<Client> findById(Long id) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID)) {
 
             preparedStatement.setLong(1, id);
@@ -61,7 +61,7 @@ public class ClientRepository implements CrudRepository<Client, Long> {
     @SneakyThrows
     @Override
     public Client save(Client client) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, client.getFullName());
@@ -81,7 +81,7 @@ public class ClientRepository implements CrudRepository<Client, Long> {
     @SneakyThrows
     @Override
     public Client update(Client client) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
 
             preparedStatement.setString(1, client.getFullName());
@@ -97,7 +97,7 @@ public class ClientRepository implements CrudRepository<Client, Long> {
     @SneakyThrows
     @Override
     public boolean deleteById(Long id) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(DELETE_BY_ID)) {
 
             preparedStatement.setLong(1, id);
@@ -107,8 +107,26 @@ public class ClientRepository implements CrudRepository<Client, Long> {
     }
 
     @SneakyThrows
+    @Override
+    public boolean exists(Long id) {
+        try (Connection connection = ConnectionPool.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(EXISTS)) {
+
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            long count = 0;
+
+            if (resultSet.next()) {
+                count = resultSet.getLong("cnt_client");
+            }
+
+            return count > 0;
+        }
+    }
+
+    @SneakyThrows
     public List<ClientWithCntCarsDto> getCountOrderedCarsByClient() {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(CNT_CARS_GROUP_BY_CLIENT)) {
 
             List<ClientWithCntCarsDto> clients = new ArrayList<>();
@@ -128,7 +146,7 @@ public class ClientRepository implements CrudRepository<Client, Long> {
 
     @SneakyThrows
     public List<String> getFullNameWithMostOrderedCars() {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(FULL_NAMES_CLIENTS_WITH_MAX_ORDERS_CNT)) {
 
             List<String> fullNames = new ArrayList<>();

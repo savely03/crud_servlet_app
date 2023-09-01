@@ -1,7 +1,7 @@
 package com.github.savely03.crudservletapp.repository;
 
 import com.github.savely03.crudservletapp.model.Car;
-import com.github.savely03.crudservletapp.util.HikariConnectionManager;
+import com.github.savely03.crudservletapp.util.ConnectionPool;
 import lombok.SneakyThrows;
 
 import java.sql.*;
@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import static com.github.savely03.crudservletapp.sql.CarQuery.*;
 
-public class CarRepository implements CrudRepository<Car, Long> {
+public class CarRepository implements CrudRepository<Car> {
     private static final CarRepository INSTANCE = new CarRepository();
 
     private CarRepository() {
@@ -24,7 +24,7 @@ public class CarRepository implements CrudRepository<Car, Long> {
     @SneakyThrows
     @Override
     public List<Car> findAll() {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL)) {
 
             List<Car> cars = new ArrayList<>();
@@ -41,7 +41,7 @@ public class CarRepository implements CrudRepository<Car, Long> {
     @SneakyThrows
     @Override
     public Optional<Car> findById(Long id) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID)) {
 
             preparedStatement.setLong(1, id);
@@ -60,7 +60,7 @@ public class CarRepository implements CrudRepository<Car, Long> {
     @SneakyThrows
     @Override
     public Car save(Car car) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, car.getModel());
@@ -82,7 +82,7 @@ public class CarRepository implements CrudRepository<Car, Long> {
     @SneakyThrows
     @Override
     public Car update(Car car) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
 
             preparedStatement.setString(1, car.getModel());
@@ -100,7 +100,7 @@ public class CarRepository implements CrudRepository<Car, Long> {
     @SneakyThrows
     @Override
     public boolean deleteById(Long id) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(DELETE_BY_ID)) {
 
             preparedStatement.setLong(1, id);
@@ -110,8 +110,26 @@ public class CarRepository implements CrudRepository<Car, Long> {
     }
 
     @SneakyThrows
+    @Override
+    public boolean exists(Long id) {
+        try (Connection connection = ConnectionPool.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(EXISTS)) {
+
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            long count = 0;
+
+            if (resultSet.next()) {
+                count = resultSet.getLong("cnt_car");
+            }
+
+            return count > 0;
+        }
+    }
+
+    @SneakyThrows
     public Integer getCountCars(String color) {
-        try (Connection connection = HikariConnectionManager.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(CNT_CARS_BY_COLOR)) {
 
             preparedStatement.setString(1, color);

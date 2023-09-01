@@ -5,7 +5,7 @@ import com.github.savely03.crudservletapp.dto.ClientWithCntCarsDto;
 
 import java.util.List;
 
-public interface ClientService extends CrudService<ClientDto, Long> {
+public interface ClientService extends CrudService<ClientDto> {
     List<ClientWithCntCarsDto> getCountOrderedCarsByClient();
 
     List<String> getFullNameWithMostOrderedCars();

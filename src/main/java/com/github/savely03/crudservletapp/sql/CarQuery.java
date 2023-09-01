@@ -44,4 +44,10 @@ public final class CarQuery {
             JOIN orders o ON c.id = o.car_id
             WHERE lower(c.color) = ?
             """;
+
+    public static final String EXISTS = """
+            SELECT count(1) as cnt_car
+            FROM cars
+            WHERE id = ?
+            """;
 }

@@ -23,7 +23,9 @@ public class CarController {
         try {
             return Response.ok(objectMapper.writeValueAsString(carService.findById(id))).build();
         } catch (CarNotFoundException e) {
-            return Response.status(e.getResponse().getStatus()).entity(e.getMessage()).build();
+            return Response.status(e.getResponse().getStatus()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -32,11 +34,15 @@ public class CarController {
     @Produces(MediaType.APPLICATION_JSON)
     @SneakyThrows
     public Response getCountCars(@QueryParam("color") String color) {
-        if (color == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Укажите параметр - color").build();
+        try {
+            if (color == null) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            return Response.ok(
+                    objectMapper.writeValueAsString(carService.getCountCars(color))
+            ).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-        return Response.ok(
-                objectMapper.writeValueAsString(carService.getCountCars(color))
-        ).build();
     }
 }

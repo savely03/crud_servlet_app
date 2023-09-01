@@ -43,4 +43,10 @@ public final class OrderQuery {
             GROUP BY month) a
             WHERE a.rnk = 1
             """;
+
+    public static final String EXISTS = """
+            SELECT count(1) as cnt_order
+            FROM orders
+            WHERE id = ?
+            """;
 }
