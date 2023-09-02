@@ -6,13 +6,11 @@ import com.github.savely03.crudservletapp.exception.ClientNotFoundException;
 import com.github.savely03.crudservletapp.exception.ValidationException;
 import com.github.savely03.crudservletapp.service.CarService;
 import com.github.savely03.crudservletapp.service.ClientService;
-import com.github.savely03.crudservletapp.service.impl.CarServiceImpl;
-import com.github.savely03.crudservletapp.service.impl.ClientServiceImpl;
 
 public class OrderDtoValidator extends Validator<OrderDto> {
     private static final OrderDtoValidator INSTANCE = new OrderDtoValidator();
-    private final CarService carService = CarServiceImpl.getInstance();
-    private final ClientService clientService = ClientServiceImpl.getInstance();
+    private final CarService carService = CarService.getInstance();
+    private final ClientService clientService = ClientService.getInstance();
 
     private OrderDtoValidator() {
     }

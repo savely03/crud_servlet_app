@@ -37,7 +37,7 @@ public abstract class BaseServlet<T> extends HttpServlet {
                 writeResponse(service.findAll(), resp, HttpServletResponse.SC_OK);
             }
         } catch (ValidationException | NotFoundException e) {
-            resp.setStatus(e.getResponse().getStatus());
+            writeResponse(e.getResponseError(), resp, e.getResponse().getStatus());
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
@@ -50,7 +50,7 @@ public abstract class BaseServlet<T> extends HttpServlet {
             validator.validate(dto);
             writeResponse(service.save(dto), resp, HttpServletResponse.SC_CREATED);
         } catch (ValidationException | NotFoundException | JsonMapException e) {
-            resp.setStatus(e.getResponse().getStatus());
+            writeResponse(e.getResponseError(), resp, e.getResponse().getStatus());
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
@@ -64,7 +64,7 @@ public abstract class BaseServlet<T> extends HttpServlet {
             validator.validate(id, dto);
             writeResponse(service.update(Long.valueOf(id), dto), resp, HttpServletResponse.SC_OK);
         } catch (ValidationException | NotFoundException | JsonMapException e) {
-            resp.setStatus(e.getResponse().getStatus());
+            writeResponse(e.getResponseError(), resp, e.getResponse().getStatus());
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
@@ -78,16 +78,18 @@ public abstract class BaseServlet<T> extends HttpServlet {
             service.deleteById(Long.valueOf(id));
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
         } catch (NotFoundException | ValidationException e) {
-            resp.setStatus(e.getResponse().getStatus());
+            writeResponse(e.getResponseError(), resp, e.getResponse().getStatus());
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
-    private void writeResponse(Object obj, HttpServletResponse resp, int status) throws IOException {
+    private void writeResponse(Object obj, HttpServletResponse resp, int status) {
         try (PrintWriter writer = resp.getWriter()) {
             writer.write(jsonMapper.mapToJson(obj));
             resp.setStatus(status);
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 

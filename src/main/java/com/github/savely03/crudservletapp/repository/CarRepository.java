@@ -5,13 +5,12 @@ import com.github.savely03.crudservletapp.util.ConnectionPool;
 import lombok.SneakyThrows;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
-import static com.github.savely03.crudservletapp.sql.CarQuery.*;
+import static com.github.savely03.crudservletapp.sql.CarQuery.INSERT;
+import static com.github.savely03.crudservletapp.sql.CarQuery.UPDATE;
 
 public class CarRepository implements CrudRepository<Car> {
+    private static final String TABLE_NAME = "cars";
     private static final CarRepository INSTANCE = new CarRepository();
 
     private CarRepository() {
@@ -19,42 +18,6 @@ public class CarRepository implements CrudRepository<Car> {
 
     public static CarRepository getInstance() {
         return INSTANCE;
-    }
-
-    @SneakyThrows
-    @Override
-    public List<Car> findAll() {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL)) {
-
-            List<Car> cars = new ArrayList<>();
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            while (resultSet.next()) {
-                cars.add(buildCar(resultSet));
-            }
-
-            return cars;
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public Optional<Car> findById(Long id) {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID)) {
-
-            preparedStatement.setLong(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            Car car = null;
-
-            if (resultSet.next()) {
-                car = buildCar(resultSet);
-            }
-
-            return Optional.ofNullable(car);
-        }
     }
 
     @SneakyThrows
@@ -97,55 +60,14 @@ public class CarRepository implements CrudRepository<Car> {
         }
     }
 
-    @SneakyThrows
     @Override
-    public boolean deleteById(Long id) {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_BY_ID)) {
-
-            preparedStatement.setLong(1, id);
-
-            return preparedStatement.executeUpdate() > 0;
-        }
+    public String getTableName() {
+        return TABLE_NAME;
     }
 
     @SneakyThrows
     @Override
-    public boolean exists(Long id) {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(EXISTS)) {
-
-            preparedStatement.setLong(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            long count = 0;
-
-            if (resultSet.next()) {
-                count = resultSet.getLong("cnt_car");
-            }
-
-            return count > 0;
-        }
-    }
-
-    @SneakyThrows
-    public Integer getCountCars(String color) {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(CNT_CARS_BY_COLOR)) {
-
-            preparedStatement.setString(1, color);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            int countCars = 0;
-
-            while (resultSet.next()) {
-                countCars = resultSet.getInt("count_cars");
-            }
-
-            return countCars;
-        }
-    }
-
-    @SneakyThrows
-    private Car buildCar(ResultSet resultSet) {
+    public Car buildEntity(ResultSet resultSet) {
         return Car.builder()
                 .id(resultSet.getLong("id"))
                 .model(resultSet.getString("model"))

@@ -1,9 +1,8 @@
 package com.github.savely03.crudservletapp.exception;
 
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
-public class JsonMapException extends WebApplicationException {
+public class JsonMapException extends BaseException {
     private static final String MESSAGE = "Ошибка при конвертации объекта";
 
     public JsonMapException() {
