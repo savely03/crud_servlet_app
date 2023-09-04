@@ -22,9 +22,8 @@ public class CarRepository implements CrudRepository<Car> {
 
     @SneakyThrows
     @Override
-    public Car save(Car car) {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+    public Car save(Car car, Connection connection) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, car.getModel());
             preparedStatement.setString(2, car.getColor());

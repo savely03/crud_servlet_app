@@ -4,8 +4,10 @@ import com.github.savely03.crudservletapp.dto.ClientDto;
 import com.github.savely03.crudservletapp.exception.ClientNotFoundException;
 import com.github.savely03.crudservletapp.mapper.ClientMapper;
 import com.github.savely03.crudservletapp.repository.ClientRepository;
+import com.github.savely03.crudservletapp.util.ConnectionPool;
 import org.mapstruct.factory.Mappers;
 
+import java.sql.Connection;
 import java.util.List;
 
 public class ClientService implements CrudService<ClientDto> {
@@ -36,7 +38,9 @@ public class ClientService implements CrudService<ClientDto> {
 
     @Override
     public ClientDto save(ClientDto clientDto) {
-        return clientMapper.toDto(clientRepository.save(clientMapper.toEntity(clientDto)));
+        Connection connection = ConnectionPool.getConnectionWithNoAutoCommit();
+        return wrapInTransaction(() ->
+                clientMapper.toDto(clientRepository.save(clientMapper.toEntity(clientDto), connection)), connection);
     }
 
     @Override

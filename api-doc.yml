@@ -360,6 +360,10 @@ components:
         carId:
           type: integer
           format: int64
+        clientDto:
+          type: object
+        carDto:
+          type: object
         orderDate:
           type: string
           format: 01.01.2023

@@ -23,9 +23,8 @@ public class OrderRepository implements CrudRepository<Order> {
 
     @SneakyThrows
     @Override
-    public Order save(Order order) {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+    public Order save(Order order, Connection connection) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setLong(1, order.getClientId());
             preparedStatement.setLong(2, order.getCarId());

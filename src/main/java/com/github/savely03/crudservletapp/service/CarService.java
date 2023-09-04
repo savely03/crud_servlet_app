@@ -4,8 +4,11 @@ import com.github.savely03.crudservletapp.dto.CarDto;
 import com.github.savely03.crudservletapp.exception.CarNotFoundException;
 import com.github.savely03.crudservletapp.mapper.CarMapper;
 import com.github.savely03.crudservletapp.repository.CarRepository;
+import com.github.savely03.crudservletapp.util.ConnectionPool;
+import lombok.SneakyThrows;
 import org.mapstruct.factory.Mappers;
 
+import java.sql.Connection;
 import java.util.List;
 
 
@@ -35,9 +38,12 @@ public class CarService implements CrudService<CarDto> {
                 .orElseThrow(() -> new CarNotFoundException(id));
     }
 
+    @SneakyThrows
     @Override
     public CarDto save(CarDto carDto) {
-        return carMapper.toDto(carRepository.save(carMapper.toEntity(carDto)));
+        Connection connection = ConnectionPool.getConnectionWithNoAutoCommit();
+        return wrapInTransaction(() ->
+                carMapper.toDto(carRepository.save(carMapper.toEntity(carDto), connection)), connection);
     }
 
     @Override

@@ -23,9 +23,8 @@ public class ClientRepository implements CrudRepository<Client> {
 
     @SneakyThrows
     @Override
-    public Client save(Client client) {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+    public Client save(Client client, Connection connection) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, client.getFullName());
             preparedStatement.setDate(2, Date.valueOf(client.getDateBirthday()));

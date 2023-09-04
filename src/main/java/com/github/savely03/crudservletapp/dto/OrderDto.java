@@ -16,6 +16,8 @@ public class OrderDto {
     private Long id;
     private Long clientId;
     private Long carId;
+    private ClientDto clientDto;
+    private CarDto carDto;
     @JsonFormat(pattern = "dd.MM.yyyy")
     private LocalDate orderDate;
 }

@@ -2,15 +2,28 @@ package com.github.savely03.crudservletapp.service;
 
 import com.github.savely03.crudservletapp.dto.OrderDto;
 import com.github.savely03.crudservletapp.exception.OrderNotFoundException;
+import com.github.savely03.crudservletapp.mapper.CarMapper;
+import com.github.savely03.crudservletapp.mapper.ClientMapper;
 import com.github.savely03.crudservletapp.mapper.OrderMapper;
+import com.github.savely03.crudservletapp.model.Car;
+import com.github.savely03.crudservletapp.model.Client;
+import com.github.savely03.crudservletapp.repository.CarRepository;
+import com.github.savely03.crudservletapp.repository.ClientRepository;
 import com.github.savely03.crudservletapp.repository.OrderRepository;
+import com.github.savely03.crudservletapp.util.ConnectionPool;
+import lombok.SneakyThrows;
 import org.mapstruct.factory.Mappers;
 
+import java.sql.Connection;
 import java.util.List;
 
 public class OrderService implements CrudService<OrderDto> {
     private static final OrderService INSTANCE = new OrderService();
     private final OrderRepository orderRepository = OrderRepository.getInstance();
+    private final CarRepository carRepository = CarRepository.getInstance();
+    private final ClientRepository clientRepository = ClientRepository.getInstance();
+    private final ClientMapper clientMapper = Mappers.getMapper(ClientMapper.class);
+    private final CarMapper carMapper = Mappers.getMapper(CarMapper.class);
     private final OrderMapper orderMapper = Mappers.getMapper(OrderMapper.class);
 
     private OrderService() {
@@ -34,9 +47,21 @@ public class OrderService implements CrudService<OrderDto> {
                 .orElseThrow(() -> new OrderNotFoundException(id));
     }
 
+    @SneakyThrows
     @Override
     public OrderDto save(OrderDto orderDto) {
-        return orderMapper.toDto(orderRepository.save(orderMapper.toEntity(orderDto)));
+        Connection connection = ConnectionPool.getConnectionWithNoAutoCommit();
+        return wrapInTransaction(() -> {
+            if (orderDto.getClientDto() != null) {
+                Client client = clientRepository.save(clientMapper.toEntity(orderDto.getClientDto()), connection);
+                orderDto.setClientId(client.getId());
+            }
+            if (orderDto.getCarDto() != null) {
+                Car car = carRepository.save(carMapper.toEntity(orderDto.getCarDto()), connection);
+                orderDto.setCarId(car.getId());
+            }
+            return orderMapper.toDto(orderRepository.save(orderMapper.toEntity(orderDto), connection));
+        }, connection);
     }
 
     @Override

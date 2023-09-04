@@ -12,5 +12,4 @@ public class ClientServlet extends BaseServlet<ClientDto> {
     public ClientServlet() {
         super(ClientService.getInstance(), ClientDtoValidator.getInstance(), s -> OBJECT_MAPPER.readValue(s, ClientDto.class));
     }
-
 }

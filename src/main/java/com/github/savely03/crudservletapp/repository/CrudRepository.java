@@ -76,7 +76,7 @@ public interface CrudRepository<E> {
         }
     }
 
-    E save(E obj);
+    E save(E obj, Connection connection);
 
     E update(E obj);
 

@@ -1,6 +1,11 @@
 package com.github.savely03.crudservletapp.service;
 
+import com.github.savely03.crudservletapp.util.ConnectionPool;
+import lombok.SneakyThrows;
+
+import java.sql.Connection;
 import java.util.List;
+import java.util.function.Supplier;
 
 // Идентификатор у всех реализаций - Long
 public interface CrudService<E> {
@@ -15,4 +20,22 @@ public interface CrudService<E> {
     void deleteById(Long id);
 
     boolean exists(Long id);
+
+    @SneakyThrows
+    default E wrapInTransaction(Supplier<E> supplier, Connection connection) {
+        E result = null;
+
+        try {
+            result = supplier.get();
+            connection.commit();
+        } catch (Exception e) {
+            if (connection != null) {
+                connection.rollback();
+            }
+        } finally {
+            ConnectionPool.putConnection(connection);
+        }
+
+        return result;
+    }
 }

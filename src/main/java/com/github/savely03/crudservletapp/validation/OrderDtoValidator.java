@@ -11,6 +11,8 @@ public class OrderDtoValidator extends Validator<OrderDto> {
     private static final OrderDtoValidator INSTANCE = new OrderDtoValidator();
     private final CarService carService = CarService.getInstance();
     private final ClientService clientService = ClientService.getInstance();
+    private final CarDtoValidator carDtoValidator = CarDtoValidator.getInstance();
+    private final ClientDtoValidator clientDtoValidator = ClientDtoValidator.getInstance();
 
     private OrderDtoValidator() {
     }
@@ -21,17 +23,24 @@ public class OrderDtoValidator extends Validator<OrderDto> {
 
     @Override
     public void validate(OrderDto orderDto) {
-        if (orderDto.getClientId() == null ||
-            orderDto.getCarId() == null ||
-            orderDto.getOrderDate() == null) {
+        if (orderDto.getOrderDate() == null) {
             throw new ValidationException();
         }
-        if (!clientService.exists(orderDto.getClientId())) {
+
+        if ((orderDto.getClientId() != null && !clientService.exists(orderDto.getClientId()))
+            && orderDto.getClientDto() == null) {
             throw new ClientNotFoundException(orderDto.getClientId());
         }
-        if (!carService.exists(orderDto.getCarId())) {
+        if ((orderDto.getCarId() != null && !carService.exists(orderDto.getCarId()))
+            && orderDto.getCarDto() == null) {
             throw new CarNotFoundException(orderDto.getCarId());
         }
 
+        if (orderDto.getCarDto() != null) {
+            carDtoValidator.validate(orderDto.getCarDto());
+        }
+        if (orderDto.getClientDto() != null) {
+            clientDtoValidator.validate(orderDto.getClientDto());
+        }
     }
 }
