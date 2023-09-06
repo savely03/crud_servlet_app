@@ -14,8 +14,8 @@ import java.util.Objects;
 @ToString
 public class Order {
     private Long id;
-    private Long clientId;
-    private Long carId;
+    private Client client;
+    private Car car;
     private LocalDate orderDate;
 
     @Override

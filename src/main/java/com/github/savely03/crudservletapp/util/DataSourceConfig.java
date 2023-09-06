@@ -1,17 +1,17 @@
 package com.github.savely03.crudservletapp.util;
 
 import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
-public final class DataSourceConfig {
+@UtilityClass
+public class DataSourceConfig {
 
     private static DataSource dataSource;
 
-    private DataSourceConfig() {
-    }
 
     static {
         initDatasource();

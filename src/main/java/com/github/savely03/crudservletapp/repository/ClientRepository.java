@@ -1,7 +1,6 @@
 package com.github.savely03.crudservletapp.repository;
 
 import com.github.savely03.crudservletapp.model.Client;
-import com.github.savely03.crudservletapp.util.ConnectionPool;
 import lombok.SneakyThrows;
 
 import java.sql.*;
@@ -42,9 +41,8 @@ public class ClientRepository implements CrudRepository<Client> {
 
     @SneakyThrows
     @Override
-    public Client update(Client client) {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
+    public Client update(Client client, Connection connection) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
 
             preparedStatement.setString(1, client.getFullName());
             preparedStatement.setDate(2, Date.valueOf(client.getDateBirthday()));

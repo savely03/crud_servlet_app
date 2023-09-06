@@ -5,6 +5,7 @@ import com.github.savely03.crudservletapp.exception.ClientNotFoundException;
 import com.github.savely03.crudservletapp.mapper.ClientMapper;
 import com.github.savely03.crudservletapp.repository.ClientRepository;
 import com.github.savely03.crudservletapp.util.ConnectionPool;
+import lombok.SneakyThrows;
 import org.mapstruct.factory.Mappers;
 
 import java.sql.Connection;
@@ -22,18 +23,24 @@ public class ClientService implements CrudService<ClientDto> {
         return INSTANCE;
     }
 
+    @SneakyThrows
     @Override
     public List<ClientDto> findAll() {
-        return clientRepository.findAll().stream()
-                .map(clientMapper::toDto)
-                .toList();
+        try (Connection connection = ConnectionPool.getConnection()) {
+            return clientRepository.findAll(connection).stream()
+                    .map(clientMapper::toDto)
+                    .toList();
+        }
     }
 
+    @SneakyThrows
     @Override
     public ClientDto findById(Long id) {
-        return clientRepository.findById(id)
-                .map(clientMapper::toDto)
-                .orElseThrow(() -> new ClientNotFoundException(id));
+        try (Connection connection = ConnectionPool.getConnection()) {
+            return clientRepository.findById(id, connection)
+                    .map(clientMapper::toDto)
+                    .orElseThrow(() -> new ClientNotFoundException(id));
+        }
     }
 
     @Override
@@ -43,27 +50,34 @@ public class ClientService implements CrudService<ClientDto> {
                 clientMapper.toDto(clientRepository.save(clientMapper.toEntity(clientDto), connection)), connection);
     }
 
+    @SneakyThrows
     @Override
     public ClientDto update(Long id, ClientDto clientDto) {
-        clientRepository.findById(id).orElseThrow(
-                () -> new ClientNotFoundException(id)
-        );
-        clientDto.setId(id);
-        clientRepository.update(clientMapper.toEntity(clientDto));
-        return clientDto;
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        if (!clientRepository.deleteById(id)) {
-            throw new ClientNotFoundException(id);
+        try (Connection connection = ConnectionPool.getConnection()) {
+            clientRepository.findById(id, connection).orElseThrow(
+                    () -> new ClientNotFoundException(id)
+            );
+            clientDto.setId(id);
+            clientRepository.update(clientMapper.toEntity(clientDto), connection);
+            return clientDto;
         }
     }
 
+    @SneakyThrows
     @Override
-    public boolean exists(Long id) {
-        return clientRepository.exists(id);
+    public void deleteById(Long id) {
+        try (Connection connection = ConnectionPool.getConnection()) {
+            if (!clientRepository.deleteById(id, connection)) {
+                throw new ClientNotFoundException(id);
+            }
+        }
     }
 
-
+    @SneakyThrows
+    @Override
+    public boolean exists(Long id) {
+        try (Connection connection = ConnectionPool.getConnection()) {
+            return clientRepository.exists(id, connection);
+        }
+    }
 }
