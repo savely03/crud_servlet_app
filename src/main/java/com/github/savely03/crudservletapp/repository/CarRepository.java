@@ -1,7 +1,6 @@
 package com.github.savely03.crudservletapp.repository;
 
 import com.github.savely03.crudservletapp.model.Car;
-import com.github.savely03.crudservletapp.util.ConnectionPool;
 import lombok.SneakyThrows;
 
 import java.sql.*;
@@ -43,9 +42,8 @@ public class CarRepository implements CrudRepository<Car> {
 
     @SneakyThrows
     @Override
-    public Car update(Car car) {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
+    public Car update(Car car, Connection connection) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
 
             preparedStatement.setString(1, car.getModel());
             preparedStatement.setString(2, car.getColor());

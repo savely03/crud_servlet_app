@@ -24,18 +24,24 @@ public class CarService implements CrudService<CarDto> {
         return INSTANCE;
     }
 
+    @SneakyThrows
     @Override
     public List<CarDto> findAll() {
-        return carRepository.findAll().stream()
-                .map(carMapper::toDto)
-                .toList();
+        try (Connection connection = ConnectionPool.getConnection()) {
+            return carRepository.findAll(connection).stream()
+                    .map(carMapper::toDto)
+                    .toList();
+        }
     }
 
+    @SneakyThrows
     @Override
     public CarDto findById(Long id) {
-        return carRepository.findById(id)
-                .map(carMapper::toDto)
-                .orElseThrow(() -> new CarNotFoundException(id));
+        try (Connection connection = ConnectionPool.getConnection()) {
+            return carRepository.findById(id, connection)
+                    .map(carMapper::toDto)
+                    .orElseThrow(() -> new CarNotFoundException(id));
+        }
     }
 
     @SneakyThrows
@@ -46,25 +52,35 @@ public class CarService implements CrudService<CarDto> {
                 carMapper.toDto(carRepository.save(carMapper.toEntity(carDto), connection)), connection);
     }
 
-    @Override
-    public CarDto update(Long id, CarDto carDto) {
-        carRepository.findById(id).orElseThrow(
-                () -> new CarNotFoundException(id)
-        );
-        carDto.setId(id);
-        carRepository.update(carMapper.toEntity(carDto));
-        return carDto;
-    }
+    @SneakyThrows
 
     @Override
-    public void deleteById(Long id) {
-        if (!carRepository.deleteById(id)) {
-            throw new CarNotFoundException(id);
+    public CarDto update(Long id, CarDto carDto) {
+        try (Connection connection = ConnectionPool.getConnection()) {
+            carRepository.findById(id, connection).orElseThrow(
+                    () -> new CarNotFoundException(id)
+            );
+            carDto.setId(id);
+            carRepository.update(carMapper.toEntity(carDto), connection);
+            return carDto;
         }
     }
 
+    @SneakyThrows
+    @Override
+    public void deleteById(Long id) {
+        try (Connection connection = ConnectionPool.getConnection()) {
+            if (!carRepository.deleteById(id, connection)) {
+                throw new CarNotFoundException(id);
+            }
+        }
+    }
+
+    @SneakyThrows
     @Override
     public boolean exists(Long id) {
-        return carRepository.exists(id);
+        try (Connection connection = ConnectionPool.getConnection()) {
+            return carRepository.exists(id, connection);
+        }
     }
 }

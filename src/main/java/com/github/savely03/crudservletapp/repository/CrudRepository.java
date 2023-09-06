@@ -1,6 +1,5 @@
 package com.github.savely03.crudservletapp.repository;
 
-import com.github.savely03.crudservletapp.util.ConnectionPool;
 import lombok.SneakyThrows;
 
 import java.sql.Connection;
@@ -15,9 +14,8 @@ import static com.github.savely03.crudservletapp.sql.CrudQuery.*;
 // Идентификатор у всех реализаций - Long
 public interface CrudRepository<E> {
     @SneakyThrows
-    default List<E> findAll() {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(String.format(FIND_ALL, getTableName()))
+    default List<E> findAll(Connection connection) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(String.format(FIND_ALL, getTableName()))
         ) {
             ResultSet resultSet = preparedStatement.executeQuery();
             List<E> result = new ArrayList<>();
@@ -31,9 +29,8 @@ public interface CrudRepository<E> {
     }
 
     @SneakyThrows
-    default Optional<E> findById(Long id) {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(String.format(FIND_BY_ID, getTableName()))
+    default Optional<E> findById(Long id, Connection connection) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(String.format(FIND_BY_ID, getTableName()))
         ) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -49,9 +46,8 @@ public interface CrudRepository<E> {
     }
 
     @SneakyThrows
-    default boolean deleteById(Long id) {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(String.format(DELETE_BY_ID, getTableName()))
+    default boolean deleteById(Long id, Connection connection) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(String.format(DELETE_BY_ID, getTableName()))
         ) {
             preparedStatement.setLong(1, id);
 
@@ -60,9 +56,8 @@ public interface CrudRepository<E> {
     }
 
     @SneakyThrows
-    default boolean exists(Long id) {
-        try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(String.format(EXISTS, getTableName()))
+    default boolean exists(Long id, Connection connection) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(String.format(EXISTS, getTableName()))
         ) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -78,7 +73,7 @@ public interface CrudRepository<E> {
 
     E save(E obj, Connection connection);
 
-    E update(E obj);
+    E update(E obj, Connection connection);
 
     String getTableName();
 

@@ -7,6 +7,7 @@ import com.github.savely03.crudservletapp.mapper.ClientMapper;
 import com.github.savely03.crudservletapp.mapper.OrderMapper;
 import com.github.savely03.crudservletapp.model.Car;
 import com.github.savely03.crudservletapp.model.Client;
+import com.github.savely03.crudservletapp.model.Order;
 import com.github.savely03.crudservletapp.repository.CarRepository;
 import com.github.savely03.crudservletapp.repository.ClientRepository;
 import com.github.savely03.crudservletapp.repository.OrderRepository;
@@ -33,18 +34,24 @@ public class OrderService implements CrudService<OrderDto> {
         return INSTANCE;
     }
 
+    @SneakyThrows
     @Override
     public List<OrderDto> findAll() {
-        return orderRepository.findAll().stream()
-                .map(orderMapper::toDto)
-                .toList();
+        try (Connection connection = ConnectionPool.getConnection()) {
+            return orderRepository.findAll(connection).stream()
+                    .map(orderMapper::toDto)
+                    .toList();
+        }
     }
 
+    @SneakyThrows
     @Override
     public OrderDto findById(Long id) {
-        return orderRepository.findById(id)
-                .map(orderMapper::toDto)
-                .orElseThrow(() -> new OrderNotFoundException(id));
+        try (Connection connection = ConnectionPool.getConnection()) {
+            return orderRepository.findById(id, connection)
+                    .map(orderMapper::toDto)
+                    .orElseThrow(() -> new OrderNotFoundException(id));
+        }
     }
 
     @SneakyThrows
@@ -60,29 +67,43 @@ public class OrderService implements CrudService<OrderDto> {
                 Car car = carRepository.save(carMapper.toEntity(orderDto.getCarDto()), connection);
                 orderDto.setCarId(car.getId());
             }
-            return orderMapper.toDto(orderRepository.save(orderMapper.toEntity(orderDto), connection));
+            Order order = orderRepository.save(orderMapper.toEntity(orderDto), connection);
+            order.setCar(carRepository.findById(orderDto.getCarId(), connection).orElse(null));
+            order.setClient(clientRepository.findById(orderDto.getClientId(), connection).orElse(null));
+            return orderMapper.toDto(order);
         }, connection);
     }
 
+    @SneakyThrows
     @Override
     public OrderDto update(Long id, OrderDto orderDto) {
-        orderRepository.findById(id).orElseThrow(
-                () -> new OrderNotFoundException(id)
-        );
-        orderDto.setId(id);
-        orderRepository.update(orderMapper.toEntity(orderDto));
-        return orderDto;
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        if (!orderRepository.deleteById(id)) {
-            throw new OrderNotFoundException(id);
+        try (Connection connection = ConnectionPool.getConnection()) {
+            orderRepository.findById(id, connection).orElseThrow(
+                    () -> new OrderNotFoundException(id)
+            );
+            orderDto.setId(id);
+            Order order = orderRepository.update(orderMapper.toEntity(orderDto), connection);
+            order.setCar(carRepository.findById(orderDto.getCarId(), connection).orElse(null));
+            order.setClient(clientRepository.findById(orderDto.getClientId(), connection).orElse(null));
+            return orderMapper.toDto(order);
         }
     }
 
+    @SneakyThrows
+    @Override
+    public void deleteById(Long id) {
+        try (Connection connection = ConnectionPool.getConnection()) {
+            if (!orderRepository.deleteById(id, connection)) {
+                throw new OrderNotFoundException(id);
+            }
+        }
+    }
+
+    @SneakyThrows
     @Override
     public boolean exists(Long id) {
-        return orderRepository.exists(id);
+        try (Connection connection = ConnectionPool.getConnection()) {
+            return orderRepository.exists(id, connection);
+        }
     }
 }
