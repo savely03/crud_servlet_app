@@ -1,6 +1,8 @@
 package com.github.savely03.crudservletapp.service;
 
 import com.github.savely03.crudservletapp.dto.OrderDto;
+import com.github.savely03.crudservletapp.exception.CarNotFoundException;
+import com.github.savely03.crudservletapp.exception.ClientNotFoundException;
 import com.github.savely03.crudservletapp.exception.OrderNotFoundException;
 import com.github.savely03.crudservletapp.mapper.CarMapper;
 import com.github.savely03.crudservletapp.mapper.ClientMapper;
@@ -60,14 +62,14 @@ public class OrderService implements CrudService<OrderDto> {
         Connection connection = ConnectionPool.getConnectionWithNoAutoCommit();
         return wrapInTransaction(() -> {
             if (orderDto.getClientDto() != null) {
-                Client client = clientRepository.save(clientMapper.toEntity(orderDto.getClientDto()), connection);
+                Client client = clientRepository.saveOrUpdate(clientMapper.toEntity(orderDto.getClientDto()), connection);
                 orderDto.setClientId(client.getId());
             }
             if (orderDto.getCarDto() != null) {
-                Car car = carRepository.save(carMapper.toEntity(orderDto.getCarDto()), connection);
+                Car car = carRepository.saveOrUpdate(carMapper.toEntity(orderDto.getCarDto()), connection);
                 orderDto.setCarId(car.getId());
             }
-            Order order = orderRepository.save(orderMapper.toEntity(orderDto), connection);
+            Order order = orderRepository.saveOrUpdate(orderMapper.toEntity(orderDto), connection);
             order.setCar(carRepository.findById(orderDto.getCarId(), connection).orElse(null));
             order.setClient(clientRepository.findById(orderDto.getClientId(), connection).orElse(null));
             return orderMapper.toDto(order);
@@ -78,14 +80,20 @@ public class OrderService implements CrudService<OrderDto> {
     @Override
     public OrderDto update(Long id, OrderDto orderDto) {
         try (Connection connection = ConnectionPool.getConnection()) {
-            orderRepository.findById(id, connection).orElseThrow(
-                    () -> new OrderNotFoundException(id)
-            );
-            orderDto.setId(id);
-            Order order = orderRepository.update(orderMapper.toEntity(orderDto), connection);
-            order.setCar(carRepository.findById(orderDto.getCarId(), connection).orElse(null));
-            order.setClient(clientRepository.findById(orderDto.getClientId(), connection).orElse(null));
-            return orderMapper.toDto(order);
+            return wrapInTransaction(() -> {
+                orderRepository.findById(id, connection).orElseThrow(
+                        () -> new OrderNotFoundException(id)
+                );
+                orderDto.setId(id);
+                Car car = carRepository.findById(orderDto.getCarId(), connection)
+                        .orElseThrow(() -> new CarNotFoundException(orderDto.getCarId()));
+                Client client = clientRepository.findById(orderDto.getClientId(), connection)
+                        .orElseThrow(() -> new ClientNotFoundException(orderDto.getClientId()));
+                Order order = orderRepository.saveOrUpdate(orderMapper.toEntity(orderDto), connection);
+                order.setCar(car);
+                order.setClient(client);
+                return orderMapper.toDto(order);
+            }, connection);
         }
     }
 

@@ -47,7 +47,7 @@ public class ClientService implements CrudService<ClientDto> {
     public ClientDto save(ClientDto clientDto) {
         Connection connection = ConnectionPool.getConnectionWithNoAutoCommit();
         return wrapInTransaction(() ->
-                clientMapper.toDto(clientRepository.save(clientMapper.toEntity(clientDto), connection)), connection);
+                clientMapper.toDto(clientRepository.saveOrUpdate(clientMapper.toEntity(clientDto), connection)), connection);
     }
 
     @SneakyThrows
@@ -58,7 +58,7 @@ public class ClientService implements CrudService<ClientDto> {
                     () -> new ClientNotFoundException(id)
             );
             clientDto.setId(id);
-            clientRepository.update(clientMapper.toEntity(clientDto), connection);
+            clientRepository.saveOrUpdate(clientMapper.toEntity(clientDto), connection);
             return clientDto;
         }
     }

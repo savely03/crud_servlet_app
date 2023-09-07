@@ -71,9 +71,7 @@ public interface CrudRepository<E> {
         }
     }
 
-    E save(E obj, Connection connection);
-
-    E update(E obj, Connection connection);
+    E saveOrUpdate(E obj, Connection connection);
 
     String getTableName();
 

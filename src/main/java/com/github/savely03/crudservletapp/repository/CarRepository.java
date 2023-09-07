@@ -21,39 +21,33 @@ public class CarRepository implements CrudRepository<Car> {
 
     @SneakyThrows
     @Override
-    public Car save(Car car, Connection connection) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+    public Car saveOrUpdate(Car car, Connection connection) {
+        PreparedStatement preparedStatement = null;
+        try {
+            if (car.getId() == null || !exists(car.getId(), connection)) {
+                preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            } else {
+                preparedStatement = connection.prepareStatement(UPDATE);
+                preparedStatement.setLong(6, car.getId());
+            }
 
             preparedStatement.setString(1, car.getModel());
             preparedStatement.setString(2, car.getColor());
             preparedStatement.setDouble(3, car.getEngineCapacity());
             preparedStatement.setDate(4, Date.valueOf(car.getReleaseDate()));
             preparedStatement.setBigDecimal(5, car.getPrice());
+
             preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
 
             if (resultSet.next()) {
                 car.setId(resultSet.getLong("id"));
             }
-
             return car;
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public Car update(Car car, Connection connection) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
-
-            preparedStatement.setString(1, car.getModel());
-            preparedStatement.setString(2, car.getColor());
-            preparedStatement.setDouble(3, car.getEngineCapacity());
-            preparedStatement.setDate(4, Date.valueOf(car.getReleaseDate()));
-            preparedStatement.setBigDecimal(5, car.getPrice());
-            preparedStatement.setLong(6, car.getId());
-            preparedStatement.executeUpdate();
-
-            return car;
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
         }
     }
 

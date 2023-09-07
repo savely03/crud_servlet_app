@@ -49,11 +49,10 @@ public class CarService implements CrudService<CarDto> {
     public CarDto save(CarDto carDto) {
         Connection connection = ConnectionPool.getConnectionWithNoAutoCommit();
         return wrapInTransaction(() ->
-                carMapper.toDto(carRepository.save(carMapper.toEntity(carDto), connection)), connection);
+                carMapper.toDto(carRepository.saveOrUpdate(carMapper.toEntity(carDto), connection)), connection);
     }
 
     @SneakyThrows
-
     @Override
     public CarDto update(Long id, CarDto carDto) {
         try (Connection connection = ConnectionPool.getConnection()) {
@@ -61,7 +60,7 @@ public class CarService implements CrudService<CarDto> {
                     () -> new CarNotFoundException(id)
             );
             carDto.setId(id);
-            carRepository.update(carMapper.toEntity(carDto), connection);
+            carRepository.saveOrUpdate(carMapper.toEntity(carDto), connection);
             return carDto;
         }
     }

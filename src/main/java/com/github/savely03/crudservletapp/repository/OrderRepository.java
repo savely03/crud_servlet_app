@@ -59,36 +59,31 @@ public class OrderRepository implements CrudRepository<Order> {
     }
 
     @SneakyThrows
-    @Override
-    public Order save(Order order, Connection connection) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+    public Order saveOrUpdate(Order order, Connection connection) {
+        PreparedStatement preparedStatement = null;
+        try {
+            if (order.getId() == null || !exists(order.getId(), connection)) {
+                preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            } else {
+                preparedStatement = connection.prepareStatement(UPDATE);
+                preparedStatement.setLong(4, order.getId());
+            }
 
             preparedStatement.setLong(1, order.getClient().getId());
             preparedStatement.setLong(2, order.getCar().getId());
             preparedStatement.setDate(3, Date.valueOf(order.getOrderDate()));
+
             preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
 
             if (resultSet.next()) {
                 order.setId(resultSet.getLong("id"));
             }
-
             return order;
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public Order update(Order order, Connection connection) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
-
-            preparedStatement.setLong(1, order.getClient().getId());
-            preparedStatement.setLong(2, order.getCar().getId());
-            preparedStatement.setDate(3, Date.valueOf(order.getOrderDate()));
-            preparedStatement.setLong(4, order.getId());
-            preparedStatement.executeUpdate();
-
-            return order;
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
         }
     }
 

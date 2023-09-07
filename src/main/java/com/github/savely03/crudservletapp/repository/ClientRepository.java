@@ -22,35 +22,31 @@ public class ClientRepository implements CrudRepository<Client> {
 
     @SneakyThrows
     @Override
-    public Client save(Client client, Connection connection) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+    public Client saveOrUpdate(Client client, Connection connection) {
+        PreparedStatement preparedStatement = null;
+        try {
+            if (client.getId() == null || !exists(client.getId(), connection)) {
+                preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            } else {
+                preparedStatement = connection.prepareStatement(UPDATE);
+                preparedStatement.setLong(4, client.getId());
+            }
 
             preparedStatement.setString(1, client.getFullName());
             preparedStatement.setDate(2, Date.valueOf(client.getDateBirthday()));
             preparedStatement.setShort(3, client.getGender());
+
             preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
 
             if (resultSet.next()) {
                 client.setId(resultSet.getLong("id"));
             }
-
             return client;
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public Client update(Client client, Connection connection) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
-
-            preparedStatement.setString(1, client.getFullName());
-            preparedStatement.setDate(2, Date.valueOf(client.getDateBirthday()));
-            preparedStatement.setShort(3, client.getGender());
-            preparedStatement.setLong(4, client.getId());
-            preparedStatement.executeUpdate();
-
-            return client;
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
         }
     }
 
