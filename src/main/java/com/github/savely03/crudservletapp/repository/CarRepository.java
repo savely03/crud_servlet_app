@@ -1,17 +1,15 @@
 package com.github.savely03.crudservletapp.repository;
 
 import com.github.savely03.crudservletapp.model.Car;
-import com.github.savely03.crudservletapp.util.HikariConnectionManager;
 import lombok.SneakyThrows;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
-import static com.github.savely03.crudservletapp.sql.CarQuery.*;
+import static com.github.savely03.crudservletapp.sql.CarQuery.INSERT;
+import static com.github.savely03.crudservletapp.sql.CarQuery.UPDATE;
 
-public class CarRepository implements CrudRepository<Car, Long> {
+public class CarRepository implements CrudRepository<Car> {
+    private static final String TABLE_NAME = "cars";
     private static final CarRepository INSTANCE = new CarRepository();
 
     private CarRepository() {
@@ -23,111 +21,44 @@ public class CarRepository implements CrudRepository<Car, Long> {
 
     @SneakyThrows
     @Override
-    public List<Car> findAll() {
-        try (Connection connection = HikariConnectionManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL)) {
-
-            List<Car> cars = new ArrayList<>();
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            while (resultSet.next()) {
-                cars.add(buildCar(resultSet));
+    public Car saveOrUpdate(Car car, Connection connection) {
+        PreparedStatement preparedStatement = null;
+        try {
+            if (car.getId() == null || !exists(car.getId(), connection)) {
+                preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            } else {
+                preparedStatement = connection.prepareStatement(UPDATE);
+                preparedStatement.setLong(6, car.getId());
             }
-
-            return cars;
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public Optional<Car> findById(Long id) {
-        try (Connection connection = HikariConnectionManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID)) {
-
-            preparedStatement.setLong(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            Car car = null;
-
-            if (resultSet.next()) {
-                car = buildCar(resultSet);
-            }
-
-            return Optional.ofNullable(car);
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public Car save(Car car) {
-        try (Connection connection = HikariConnectionManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, car.getModel());
             preparedStatement.setString(2, car.getColor());
             preparedStatement.setDouble(3, car.getEngineCapacity());
             preparedStatement.setDate(4, Date.valueOf(car.getReleaseDate()));
             preparedStatement.setBigDecimal(5, car.getPrice());
+
             preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
 
             if (resultSet.next()) {
                 car.setId(resultSet.getLong("id"));
             }
-
             return car;
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public Car update(Car car) {
-        try (Connection connection = HikariConnectionManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
-
-            preparedStatement.setString(1, car.getModel());
-            preparedStatement.setString(2, car.getColor());
-            preparedStatement.setDouble(3, car.getEngineCapacity());
-            preparedStatement.setDate(4, Date.valueOf(car.getReleaseDate()));
-            preparedStatement.setBigDecimal(5, car.getPrice());
-            preparedStatement.setLong(6, car.getId());
-            preparedStatement.executeUpdate();
-
-            return car;
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public boolean deleteById(Long id) {
-        try (Connection connection = HikariConnectionManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_BY_ID)) {
-
-            preparedStatement.setLong(1, id);
-
-            return preparedStatement.executeUpdate() > 0;
-        }
-    }
-
-    @SneakyThrows
-    public Integer getCountCars(String color) {
-        try (Connection connection = HikariConnectionManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(CNT_CARS_BY_COLOR)) {
-
-            preparedStatement.setString(1, color);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            int countCars = 0;
-
-            while (resultSet.next()) {
-                countCars = resultSet.getInt("count_cars");
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
             }
-
-            return countCars;
         }
     }
 
+    @Override
+    public String getTableName() {
+        return TABLE_NAME;
+    }
+
     @SneakyThrows
-    private Car buildCar(ResultSet resultSet) {
+    @Override
+    public Car buildEntity(ResultSet resultSet) {
         return Car.builder()
                 .id(resultSet.getLong("id"))
                 .model(resultSet.getString("model"))

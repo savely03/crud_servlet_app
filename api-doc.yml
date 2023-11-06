@@ -19,8 +19,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ClientDto'
-        'default':
-          description: Unexpected errors
+        '500':
+          description: Internal Server Error
     post:
       summary: Create client
       tags:
@@ -38,8 +38,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClientDto'
-        "400":
+        '400':
           description: Bad request - problems with validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '500':
+          description: Internal Server Error
     delete:
       summary: Delete client by id
       tags:
@@ -58,8 +64,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClientDto'
+        '400':
+          description: Bad request - problems with validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
         '404':
           description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '500':
+          description: Internal Server Error
     put:
       summary: Update client
       tags:
@@ -80,58 +98,18 @@ paths:
                 $ref: '#/components/schemas/ClientDto'
         '400':
           description: Bad request - problems with validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
         '404':
           description: Not Found
-  /client{id}:
-    get:
-      summary: Get client by id
-      tags:
-        - Client
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: Successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClientDto'
-        '404':
-          description: Not Found
-  /client/count-cars-ordered:
-    get:
-      summary: Get count cars group by client
-      tags:
-        - Client
-      responses:
-        '200':
-          description: Successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClientWithCntCarsDto'
-        'default':
-          description: Unexpected errors
-  /client/fullName/most-cars-ordered:
-    get:
-      summary: Get fullNames with most ordered cars
-      tags:
-        - Client
-      responses:
-        '200':
-          description: Successful
-          content:
-            application/json:
-              schema:
-                type: string
-        'default':
-          description: Unexpected errors
-
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '500':
+          description: Internal Server Error
 
   /order:
     get:
@@ -147,8 +125,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/OrderDto'
-        'default':
-          description: Unexpected errors
+        '500':
+          description: Internal Server Error
     post:
       summary: Create order
       tags:
@@ -166,8 +144,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OrderDto'
-        "400":
+        '400':
           description: Bad request - problems with validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '500':
+          description: Internal Server Error
     delete:
       summary: Delete order by id
       tags:
@@ -186,8 +170,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OrderDto'
+        '400':
+          description: Bad request - problems with validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
         '404':
           description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '500':
+          description: Internal Server Error
     put:
       summary: Update order
       tags:
@@ -208,44 +204,18 @@ paths:
                 $ref: '#/components/schemas/OrderDto'
         '400':
           description: Bad request - problems with validation
-        '404':
-          description: Not Found
-  /order{id}:
-    get:
-      summary: Get order by id
-      tags:
-        - Order
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: Successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OrderDto'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '404':
           description: Not Found
-  /order/month/most-cars-ordered:
-    get:
-      summary: Get months with most ordered cars
-      tags:
-        - Order
-      responses:
-        '200':
-          description: Successful
           content:
             application/json:
               schema:
-                type: integer
-        'default':
-          description: Unexpected errors
-
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '500':
+          description: Internal Server Error
 
   /car:
     get:
@@ -261,9 +231,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CarDto'
-
-        'default':
-          description: Unexpected errors
+        '500':
+          description: Internal Server Error
     post:
       summary: Create car
       tags:
@@ -281,8 +250,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CarDto'
-        "400":
+        '400':
           description: Bad request - problems with validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '500':
+          description: Internal Server Error
     delete:
       summary: Delete car by id
       tags:
@@ -301,8 +276,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CarDto'
+        '400':
+          description: Bad request - problems with validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
         '404':
           description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '500':
+          description: Internal Server Error
     put:
       summary: Update car
       tags:
@@ -323,49 +310,18 @@ paths:
                 $ref: '#/components/schemas/CarDto'
         '400':
           description: Bad request - problems with validation
-        '404':
-          description: Not Found
-  /car{id}:
-    get:
-      summary: Get car by id
-      tags:
-        - Car
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: Successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CarDto'
+                $ref: '#/components/schemas/ErrorResponseDto'
         '404':
           description: Not Found
-  /car/count-ordered:
-    get:
-      summary: Get count cars by color
-      tags:
-        - Car
-      parameters:
-        - name: color
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful
           content:
             application/json:
               schema:
-                type: integer
-        '404':
-          description: Not Found
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '500':
+          description: Internal Server Error
 
 
 components:
@@ -404,6 +360,10 @@ components:
         carId:
           type: integer
           format: int64
+        clientDto:
+          type: object
+        carDto:
+          type: object
         orderDate:
           type: string
           format: 01.01.2023
@@ -430,16 +390,10 @@ components:
           format: 01.01.2023
         price:
           type: number
-    ClientWithCntCarsDto:
+    ErrorResponseDto:
       type: object
-      required:
-        - fullName
-        - countCars
       properties:
-        id:
+        status:
           type: integer
-          format: int64
-        fullName:
+        message:
           type: string
-        countCars:
-          type: integer

@@ -1,25 +1,24 @@
 package com.github.savely03.crudservletapp.util;
 
 import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
-import java.sql.Connection;
 
-public final class HikariConnectionManager {
+@UtilityClass
+public class DataSourceConfig {
+
     private static DataSource dataSource;
+
 
     static {
         initDatasource();
     }
 
-    private HikariConnectionManager() {
-    }
-
-    @SneakyThrows
-    public static Connection getConnection() {
-        return dataSource.getConnection();
+    public static DataSource getDataSource() {
+        return dataSource;
     }
 
     @SneakyThrows
